@@ -817,7 +817,7 @@ public class Preprocessor implements Closeable {
 						), true);
 		}
 		else {
-			push_source(new MacroTokenSource(m, args), true);
+			push_source(new MacroTokenSource(m, args, orig), true);
 		}
 
 		return true;
@@ -1908,6 +1908,8 @@ public class Preprocessor implements Closeable {
 		} while (isWhite(tok));
 		return tok;
 	}
+
+    int offset = 0;
 
 	/**
 	 * Returns the next preprocessor token.

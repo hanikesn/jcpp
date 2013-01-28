@@ -44,6 +44,7 @@ public class LexerSource extends Source {
 	private int				line;
 	private int				column;
 	private int				lastcolumn;
+    private int             offset;
 	private boolean			cr;
 
 	/* ppvalid is:
@@ -61,6 +62,7 @@ public class LexerSource extends Source {
 
 		this.line = 1;
 		this.column = 0;
+        this.offset = 0;
 		this.lastcolumn = -1;
 		this.cr = false;
 	}
@@ -81,6 +83,11 @@ public class LexerSource extends Source {
 	public int getColumn() {
 		return column;
 	}
+
+    @Override
+    public int getOffset() {
+        return offset;
+    }
 
 	@Override
 	/* pp */ boolean isNumbered() {
@@ -170,6 +177,8 @@ public class LexerSource extends Source {
 				break;
 		}
 
+        offset++;
+
 		switch (c) {
 			case '\r':
 				cr = true;
@@ -229,6 +238,7 @@ public class LexerSource extends Source {
 			else {
 				column--;
 			}
+            offset--;
 			switch (ucount) {
 				case 0:
 					u0 = c;
@@ -652,6 +662,7 @@ public class LexerSource extends Source {
 
 		int		_l = line;
 		int		_c = column;
+        int     _o = offset;
 
 		int		c = read();
 		int		d;
@@ -886,7 +897,7 @@ public class LexerSource extends Source {
 			}
 		}
 
-		tok.setLocation(_l, _c);
+		tok.setLocation(_l, _c, _o);
 		if (DEBUG)
 			System.out.println("lx: Returning " + tok);
 		// (new Exception("here")).printStackTrace(System.out);

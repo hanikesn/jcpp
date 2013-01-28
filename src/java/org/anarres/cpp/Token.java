@@ -32,6 +32,9 @@ public final class Token {
 	private Object	value;
 	private String	text;
 
+    public int offset;
+    public int origoffset;
+
 	public Token(int type, int line, int column,
 					String text, Object value) {
 		this.type = type;
@@ -64,9 +67,10 @@ public final class Token {
 		return type;
 	}
 
-	/* pp */ void setLocation(int line, int column) {
+	/* pp */ void setLocation(int line, int column, int offset) {
 		this.line = line;
 		this.column = column;
+        this.offset = offset;
 	}
 
 	/**

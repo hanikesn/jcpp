@@ -290,4 +290,10 @@ public abstract class Source implements Iterable<Token>, Closeable {
 						throws IOException {
 	}
 
+    public int getOffset() {
+        Source	parent = getParent();
+        if (parent == null)
+            return 0;
+        return parent.getOffset();
+    }
 }

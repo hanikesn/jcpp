@@ -39,12 +39,14 @@ import static org.anarres.cpp.Token.*;
 	private Iterator<Token>		tokens;	/* Pointer into the macro.  */
 	private List<Argument>		args;	/* { unexpanded, expanded } */
 	private Iterator<Token>		arg;	/* "current expansion" */
+    private Token               orig;  /* original position in source */
 
-	/* pp */ MacroTokenSource(Macro m, List<Argument> args) {
+	/* pp */ MacroTokenSource(Macro m, List<Argument> args, Token orig) {
 		this.macro = m;
 		this.tokens = m.getTokens().iterator();
 		this.args = args;
 		this.arg = null;
+        this.orig = orig;
 	}
 
 	@Override
@@ -177,6 +179,9 @@ import static org.anarres.cpp.Token.*;
 				return new Token(EOF, -1, -1, "");	/* End of macro. */
 			Token	tok = tokens.next();
 			int		idx;
+
+            tok.offset = orig.offset;
+
 			switch (tok.getType()) {
 				case M_STRING:
 					/* Use the nonexpanded arg. */

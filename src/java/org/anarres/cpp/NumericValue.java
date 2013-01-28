@@ -113,12 +113,12 @@ public class NumericValue extends Number {
 
 	@Override
 	public int intValue() {
-		return Integer.parseInt(toString());
+		return integer.isEmpty() ? 0 : Integer.parseInt(integer, base);
 	}
 
 	@Override
 	public long longValue() {
-		return Long.parseLong(toString());
+		return integer.isEmpty() ? 0 : Long.parseLong(integer, base);
 	}
 
 	@Override

@@ -513,12 +513,13 @@ public class LexerSource extends Source {
 	}
 
 	/* Either a decimal part, or a hex exponent. */
-	private String _number_part(StringBuilder text, int base)
+	private String _number_part(StringBuilder text, int base, boolean withMinus)
 						throws IOException,
 								LexerException {
 		StringBuilder	part = new StringBuilder();
 		int				d = read();
-		while (Character.digit(d, base) != -1) {
+        // either digit or minus
+		while (Character.digit(d, base) != -1 || (withMinus && d == 45)) {
 			text.append((char)d);
 			part.append((char)d);
 			d = read();
@@ -532,9 +533,18 @@ public class LexerSource extends Source {
 						throws IOException,
 								LexerException {
 		StringBuilder	text = new StringBuilder("0");
-		String			integer = _number_part(text, 8);
+        // Read everything and reject later if we read an invalid number
+		String			integer = _number_part(text, 10, false);
+        NumericValue	value;
 		int				d = read();
-		NumericValue	value = new NumericValue(8, integer);
+        if (d == '.' || d == 'E' || d == 'e') {
+            unread(d);
+            return number_decimal(text, new NumericValue(10, integer));
+        } else {
+            if(!integer.matches("[0-7]*"))
+                throw new LexerException("Invalid character in octal number.");
+            value = new NumericValue(8, integer);
+        }
 		return _number_suffix(text, value, d);
 	}
 
@@ -544,16 +554,16 @@ public class LexerSource extends Source {
 								LexerException {
 		StringBuilder	text = new StringBuilder("0");
 		text.append(x);
-		String			integer = _number_part(text, 16);
+		String			integer = _number_part(text, 16, false);
 		NumericValue	value = new NumericValue(16, integer);
 		int				d = read();
 		if (d == '.') {
-			String		fraction = _number_part(text, 16);
+			String		fraction = _number_part(text, 16, false);
 			value.setFractionalPart(fraction);
 			d = read();
 		}
 		if (d == 'P' || d == 'p') {
-			String		exponent = _number_part(text, 10);
+			String		exponent = _number_part(text, 10, true);
 			value.setExponent(exponent);
 			d = read();
 		}
@@ -563,20 +573,22 @@ public class LexerSource extends Source {
 
 	/* We know we have at least one valid digit, but empty is not
 	 * fine. */
-	private Token number_decimal()
+	private Token number_decimal(StringBuilder _text, NumericValue _value)
 						throws IOException,
 								LexerException {
-		StringBuilder	text = new StringBuilder();
-		String			integer = _number_part(text, 10);
-		NumericValue	value = new NumericValue(10, integer);
+		StringBuilder	text = _text != null ? _text : new StringBuilder();
+		String			integer = _number_part(text, 10, false);
+		NumericValue	value = _value != null ? _value : new NumericValue(10, integer);
 		int				d = read();
 		if (d == '.') {
-			String		fraction = _number_part(text, 10);
+            text.append((char) d);
+			String		fraction = _number_part(text, 10, false);
 			value.setFractionalPart(fraction);
 			d = read();
 		}
 		if (d == 'E' || d == 'e') {
-			String		exponent = _number_part(text, 10);
+            text.append((char) d);
+			String		exponent = _number_part(text, 10, true);
 			value.setExponent(exponent);
 			d = read();
 		}
@@ -817,7 +829,7 @@ public class LexerSource extends Source {
 					unread(d);
 				if (Character.isDigit(d)) {
 					unread('.');
-					tok = number_decimal();
+					tok = number_decimal(null, null);
 				}
 				/* XXX decimal fraction */
 				break;
@@ -853,7 +865,7 @@ public class LexerSource extends Source {
 			}
 			else if (Character.isDigit(c)) {
 				unread(c);
-				tok = number_decimal();
+				tok = number_decimal(null, null);
 			}
 			else if (Character.isJavaIdentifierStart(c)) {
 				tok = identifier(c);

@@ -98,7 +98,7 @@ import static org.anarres.cpp.Token.*;
 		str.append("\"");
 		// System.out.println("Escape: " + buf + " -> " + str);
 		return new Token(STRING,
-				pos.getLine(), pos.getColumn(),
+				pos.getLine(), pos.getColumn(), pos.getOffset(),
 				str.toString(), buf.toString());
 	}
 
@@ -170,13 +170,14 @@ import static org.anarres.cpp.Token.*;
 					/* XXX PASTE -> INVALID. */
 					assert tok.getType() != M_PASTE :
 								"Unexpected paste token";
+                    tok.offset = orig.offset;
 					return tok;
 				}
 				arg = null;
 			}
 
 			if (!tokens.hasNext())
-				return new Token(EOF, -1, -1, "");	/* End of macro. */
+				return new Token(EOF, -1, -1, -1, "");	/* End of macro. */
 			Token	tok = tokens.next();
 			int		idx;
 

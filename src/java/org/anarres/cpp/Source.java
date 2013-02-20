@@ -248,7 +248,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 					warning(tok.getLine(), tok.getColumn(),
 									"No newline before end of file");
 					return new Token(NL,
-							tok.getLine(), tok.getColumn(),
+							tok.getLine(), tok.getColumn(), tok.getOffset(),
 							"\n");
 					// return tok;
 				case NL:

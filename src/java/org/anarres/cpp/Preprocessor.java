@@ -530,7 +530,7 @@ public class Preprocessor implements Closeable {
 		/* XXX This call to escape(name) is correct but ugly. */
 		MacroTokenSource.escape(buf, name);
 		buf.append("\"").append(extra).append("\n");
-		return new Token(P_LINE, line, 0, buf.toString(), null);
+		return new Token(P_LINE, line, 0, offset, buf.toString(), null);
 	}
 
 	private Token source_token()
@@ -773,7 +773,7 @@ public class Preprocessor implements Closeable {
 		if (m == __LINE__) {
 			push_source(new FixedTokenSource(
 					new Token[] { new Token(NUMBER,
-							orig.getLine(), orig.getColumn(),
+							orig.getLine(), orig.getColumn(), orig.getOffset(),
 							String.valueOf(orig.getLine()),
 							new NumericValue(10, "" + orig.getLine())) }
 						), true);
@@ -801,7 +801,7 @@ public class Preprocessor implements Closeable {
 			String			text = buf.toString();
 			push_source(new FixedTokenSource(
 					new Token[] { new Token(STRING,
-							orig.getLine(), orig.getColumn(),
+							orig.getLine(), orig.getColumn(), orig.getOffset(),
 							text, text) }
 						), true);
 		}
@@ -811,7 +811,7 @@ public class Preprocessor implements Closeable {
 			int	value = this.counter++;
 			push_source(new FixedTokenSource(
 					new Token[] { new Token(NUMBER,
-							orig.getLine(), orig.getColumn(),
+							orig.getLine(), orig.getColumn(), orig.getOffset(),
 							String.valueOf(value),
 							new NumericValue(10, "" + value)) }
 						), true);
@@ -972,7 +972,7 @@ public class Preprocessor implements Closeable {
 					space = false;
 					paste = true;
 					m.addPaste(new Token(M_PASTE,
-							tok.getLine(), tok.getColumn(),
+							tok.getLine(), tok.getColumn(), tok.getOffset(),
 							"#" + "#", null));
 					break;
 
@@ -985,7 +985,7 @@ public class Preprocessor implements Closeable {
 					if (la.getType() == IDENTIFIER &&
 						((idx = args.indexOf(la.getText())) != -1)) {
 						m.addToken(new Token(M_STRING,
-								la.getLine(), la.getColumn(),
+								la.getLine(), la.getColumn(), la.getOffset(),
 								"#" + la.getText(),
 								Integer.valueOf(idx)));
 					}
@@ -1006,7 +1006,7 @@ public class Preprocessor implements Closeable {
 						m.addToken(tok);
 					else
 						m.addToken(new Token(M_ARG,
-								tok.getLine(), tok.getColumn(),
+								tok.getLine(), tok.getColumn(), tok.getOffset(),
 								tok.getText(),
 								Integer.valueOf(idx)));
 					break;
@@ -1343,19 +1343,19 @@ public class Preprocessor implements Closeable {
 						"defined() needs identifier, not " +
 						la.getText());
 					tok = new Token(NUMBER,
-							la.getLine(), la.getColumn(),
+							la.getLine(), la.getColumn(), la.getOffset(),
 							"0", new NumericValue(10, "0"));
 				}
 				else if (macros.containsKey(la.getText())) {
 					// System.out.println("Found macro");
 					tok = new Token(NUMBER,
-							la.getLine(), la.getColumn(),
+							la.getLine(), la.getColumn(), la.getOffset(),
 							"1", new NumericValue(10, "1"));
 				}
 				else {
 					// System.out.println("Not found macro");
 					tok = new Token(NUMBER,
-							la.getLine(), la.getColumn(),
+							la.getLine(), la.getColumn(), la.getOffset(),
 							"0", new NumericValue(10, "0"));
 				}
 
@@ -1561,7 +1561,7 @@ public class Preprocessor implements Closeable {
 		char[]	cbuf = new char[nls];
 		Arrays.fill(cbuf, '\n');
 		return new Token(WHITESPACE,
-				tok.getLine(), tok.getColumn(),
+				tok.getLine(), tok.getColumn(), tok.getOffset(),
 				new String(cbuf));
 	}
 

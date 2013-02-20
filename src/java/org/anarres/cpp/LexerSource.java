@@ -86,7 +86,7 @@ public class LexerSource extends Source {
 
     @Override
     public int getOffset() {
-        return offset;
+        return getParent() != null ? getParent().getOffset() : offset;
     }
 
 	@Override
@@ -474,7 +474,7 @@ public class LexerSource extends Source {
 			}
 			else if (d == 'L' || d == 'l') {
 				if ((flags & NumericValue.FF_SIZE) != 0)
-					warning("Nultiple length suffixes after " + text);
+					warning("Multiple length suffixes after " + text);
 				text.append((char)d);
 				int e = read();
 				if (e == d) {	// Case must match. Ll is Welsh.
@@ -488,19 +488,19 @@ public class LexerSource extends Source {
 			}
 			else if (d == 'I' || d == 'i') {
 				if ((flags & NumericValue.FF_SIZE) != 0)
-					warning("Nultiple length suffixes after " + text);
+					warning("Multiple length suffixes after " + text);
 				flags |= NumericValue.F_INT;
 				text.append((char)d);
 				d = read();
 			} else if (d == 'F' || d == 'f') {
 				if ((flags & NumericValue.FF_SIZE) != 0)
-					warning("Nultiple length suffixes after " + text);
+					warning("Multiple length suffixes after " + text);
 				flags |= NumericValue.F_FLOAT;
 				text.append((char)d);
 				d = read();
 			} else if (d == 'D' || d == 'd') {
 				if ((flags & NumericValue.FF_SIZE) != 0)
-					warning("Nultiple length suffixes after " + text);
+					warning("Multiple length suffixes after " + text);
 				flags |= NumericValue.F_DOUBLE;
 				text.append((char)d);
 				d = read();
@@ -662,7 +662,7 @@ public class LexerSource extends Source {
 
 		int		_l = line;
 		int		_c = column;
-        int     _o = offset;
+        int     _o = getOffset();
 
 		int		c = read();
 		int		d;
@@ -672,7 +672,7 @@ public class LexerSource extends Source {
 				if (ppvalid) {
 					bol = true;
 					if (include) {
-						tok = new Token(NL, _l, _c, "\n");
+						tok = new Token(NL, _l, _c, _o, "\n");
 					}
 					else {
 						int	nls = 0;
@@ -685,7 +685,7 @@ public class LexerSource extends Source {
 						for (int i = 0; i < text.length; i++)
 							text[i] = '\n';
 						// Skip the bol = false below.
-						tok = new Token(NL, _l, _c, new String(text));
+						tok = new Token(NL, _l, _c, _o, new String(text));
 					}
 					if (DEBUG)
 						System.out.println("lx: Returning NL: " + tok);
@@ -866,7 +866,7 @@ public class LexerSource extends Source {
 
 			case -1:
 				close();
-				tok = new Token(EOF, _l, _c, "<eof>");
+				tok = new Token(EOF, _l, _c, _o, "<eof>");
 				break;
 		}
 

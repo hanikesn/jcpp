@@ -35,21 +35,22 @@ public final class Token {
     public int offset;
     public int origoffset;
 
-	public Token(int type, int line, int column,
+	public Token(int type, int line, int column, int offset,
 					String text, Object value) {
 		this.type = type;
 		this.line = line;
 		this.column = column;
+        this.offset = offset;
 		this.text = text;
 		this.value = value;
 	}
 
-	public Token(int type, int line, int column, String text) {
-		this(type, line, column, text, null);
+	public Token(int type, int line, int column, int offset, String text) {
+		this(type, line, column, offset, text, null);
 	}
 
 	/* pp */ Token(int type, String text, Object value) {
-		this(type, -1, -1, text, value);
+		this(type, -1, -1, -1, text, value);
 	}
 
 	/* pp */ Token(int type, String text) {
@@ -90,6 +91,10 @@ public final class Token {
 	public int getColumn() {
 		return column;
 	}
+
+    public int getOffset() {
+        return offset;
+    }
 
 	/**
 	 * Returns the original or generated text of this token.
@@ -169,7 +174,7 @@ public final class Token {
 	public static final int _TOKENS = $i;
 
 	/** The position-less space token. */
-	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, " ");
+	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, -1, " ");
 
 	private static final String[] names = new String[_TOKENS];
 	private static final String[] texts = new String[_TOKENS];
